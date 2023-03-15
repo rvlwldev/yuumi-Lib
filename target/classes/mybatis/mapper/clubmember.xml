@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <!-- clubmember.xml -->
+ 	<!-- namespace 는 해당 인터페이스 완전한 이름을 사용 -->
+
+
+  <mapper namespace="com.yuumilibrary.club.dao.IClubMemberDao">
+  	<select id="getClubCount" parameterType="com.yuumilibrary.club.vo.ClubSearchVO" resultType="int">
+  		SELECT	count(*)
+  		  FROM	book_club
+  		 WHERE	bk_del_yn = 'N'
+  	</select>
+  	<select id="getClubList" parameterType="com.yuumilibrary.club.vo.ClubSearchVO" resultType="com.yuumilibrary.club.vo.ClubVO">
+  		SELECT  bk_num
+		      , bk_location
+		      , bk_age
+		      , bk_limit
+		      , bk_time
+		      , bk_mem_id
+		      , bk_theme
+		      , bk_imageurl
+		      , bk_club_name
+		      , bk_del_yn
+		  FROM  book_club
+		 WHERE  bk_del_yn = 'N'
+		 ORDER	BY bk_num DESC
+  	</select>
+  	<select id="getClub" parameterType="String" resultType="com.yuumilibrary.club.vo.ClubVO">
+  		SELECT  bk_num
+		      , bk_location
+		      , bk_age
+		      , bk_limit
+		      , bk_time
+		      , bk_mem_id
+		      , bk_theme
+		      , bk_imageurl
+		      , bk_club_name
+		      , bk_del_yn
+		  FROM  book_club
+		 WHERE  bk_del_yn = 'N'
+		   AND	bk_club_name = #{bkClubName}
+		 ORDER	BY bk_num DESC
+  	</select>
+  	<insert id="registClub" parameterType="com.yuumilibrary.club.vo.ClubVO">
+  		INSERT INTO book_club (
+				    bk_num        	, bk_location    	, bk_age
+				  , bk_limit      	, bk_time        	, bk_mem_id
+				  , bk_theme 	  	, bk_imageurl    	, bk_club_name
+				  , bk_del_yn
+				) VALUES (
+				  	(select nvl(max(bk_num),0) + 1 from  book_club where bk_del_yn = 'N')		, #{bkLocation}		, #{bkAge}
+				  , #{bkLimit}		, #{bkTime}			, #{bkMemId}
+				  , #{bkTheme}		, #{bkImageurl}		, #{bkClubName}
+				  , 'N'
+				)
+  	</insert>
+  	<delete id="deleteClub" parameterType="com.yuumilibrary.club.vo.ClubVO">
+  		UPDATE  book_club
+		   SET  bk_del_yn = 'Y'
+		 WHERE  bk_club_name = #{bkClubName}
+		   AND  bk_mem_id = #{bkMemId}
+  	</delete>
+  	<update id="modifyClub" parameterType="com.yuumilibrary.club.vo.ClubVO">
+  		UPDATE  book_club
+		   SET  bk_location = #{bkLocation}
+		      , bk_age = #{bkAge}
+		      , bk_limit = #{bkLimit}
+		      , bk_theme = #{bkTheme}
+		      , bk_imageurl = #{bkImageurl}
+		      , bk_club_name = #{bkClubName}
+		 WHERE  bk_club_name = #{bkClubName}
+		   AND  bk_mem_id = #{bkMemId}
+  	</update>
+  	
+  	<insert id="registMember" parameterType="com.yuumilibrary.club.vo.ClubMemberListVO">
+  		INSERT INTO club_memberlist(
+			        cb_name		, mem_id	, confirm_yn
+			    ) VALUES (
+			       #{cbName}	, #{memId}	, 'N'
+			    )
+  	</insert>
+  	<update id="registMemberConfirm" parameterType="com.yuumilibrary.club.vo.ClubMemberListVO">
+  		UPDATE  club_memberlist
+		   SET  confirm_yn = 'Y'
+		 WHERE  cb_name = #{cbName}
+  	</update>
+  	<delete id="withdrawMember" parameterType="com.yuumilibrary.club.vo.ClubMemberListVO">
+  		UPDATE  club_memberlist
+		   SET  confirm_yn = 'N'
+		 WHERE  cb_name = #{cbName}
+		   AND	mem_id = #{memId}
+  	</delete>
+  	<select id="getMemberCount" parameterType="com.yuumilibrary.club.vo.ClubMemberListVO" resultType="int">
+  		SELECT	count(*)
+  		  FROM	club_memberlist
+  		 WHERE	confirm_yn = 'Y'
+  		   AND	cb_name = #{cbName}
+  	</select>
+  
+  </mapper>
